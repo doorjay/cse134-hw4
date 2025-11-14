@@ -190,7 +190,22 @@ function setupContactFormJS() {
 }
 
 function setupThemeToggle() {
+    const toggle = document.querySelector('#theme-toggle'); 
+    if (!toggle) return; 
 
+    const savedTheme = localStorage.getItem('preferred-theme');
+
+    if (savedTheme === 'dark') {
+        toggle.checked = true; 
+    }
+    else if (savedTheme === 'light') {
+        toggle.checked = false;
+    }
+
+    toggle.addEventListener('change', () => {
+        const theme = toggle.checked ? 'dark' : 'light';
+        localStorage.setItem('preferred-theme', theme);
+    });
 }
 
 function setupViewTransions() {
