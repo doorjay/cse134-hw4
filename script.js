@@ -22,6 +22,27 @@ function setupContactFormJS() {
     if (errorOutput) errorOutput.textContent = '';
     if (infoOutput) infoOutput.textContent = '';
 
+    // masking to prevent illegal characters based on pattern
+    nameField.addEventListener('input', () => {
+        const pattern = new RegExp(nameField.pattern);
+        const value = nameField.value;
+
+        // If the whole value no longer matches the allowed pattern
+        if (!pattern.test(value)) {
+            // Remove the last typed character
+            nameField.value = value.slice(0, -1);
+
+            // Flash field (visual feedback)
+            nameField.classList.add('field-flash');
+            setTimeout(() => {
+                nameField.classList.remove('field-flash');
+            }, 200);
+
+            // Show message
+            errorOutput.textContent = "Only letters, spaces, hyphens, and apostrophes are allowed.";
+        }
+    });
+
     // Helper to set a custom message based on validity state
     function setMessageForField(field) {
         field.setCustomValidity(''); // clear old message

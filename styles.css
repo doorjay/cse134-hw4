@@ -207,6 +207,10 @@ fieldset {
     }
 }
 
+.field-flash {
+    outline: 2px solid crimson;
+}
+
 
 main {
     display: grid;
