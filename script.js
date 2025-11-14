@@ -22,7 +22,23 @@ function setupContactFormJS() {
     if (errorOutput) errorOutput.textContent = '';
     if (infoOutput) infoOutput.textContent = '';
 
-    // masking to prevent illegal characters based on pattern
+
+    // ERROR LOGGER
+    const errorLogField = document.querySelector('#form-errors-field');
+
+    function logError(field, message) {
+        form_errors.push({
+            field: field.name || field.id,
+            value: field.value,
+            message: message,
+            time: new Date().toISOString()
+        });
+    }
+
+
+
+    // MASKING
+    // prevent illegal characters based on pattern
     nameField.addEventListener('input', () => {
         const pattern = new RegExp(nameField.pattern);
         const value = nameField.value;
@@ -38,9 +54,12 @@ function setupContactFormJS() {
                 nameField.classList.remove('field-flash');
             }, 200);
 
+            logError(nameField, "Illegal character typed");
         }
     });
 
+
+    // Character count warning in message field
     const charCountSpan = document.querySelector('#char-count');
     const maxChars = messageField.maxLength;
 
@@ -72,6 +91,8 @@ function setupContactFormJS() {
     // Show initial value on load
     updateCharacterCount();
 
+
+    // VALIDATION
     // Helper to set a custom message based on validity state
     function setMessageForField(field) {
         field.setCustomValidity(''); // clear old message
@@ -127,6 +148,9 @@ function setupContactFormJS() {
         field.addEventListener('blur', () => {
             setMessageForField(field);
             field.checkValidity();
+            if (!field.checkValidity()) {
+                logError(field, field.validationMessage);
+            }
             showFirstErrorMessage();
         });
 
@@ -146,7 +170,19 @@ function setupContactFormJS() {
         // If form is invalid, prevent submit and show first error
         if (!form.checkValidity()) {
             event.preventDefault();
+
+            [nameField, emailField, messageField].forEach(field => {
+                if (!field.checkValidity()) {
+                    logError(field, field.validationMessage);
+                }
+            });
+
             showFirstErrorMessage();
+        }
+
+        // if form is valid, save error history into hidden field
+        if (errorLogField) {
+            errorLogField.value = JSON.stringify(form_errors);
         }
 
     });
