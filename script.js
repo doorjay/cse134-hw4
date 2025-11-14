@@ -38,10 +38,39 @@ function setupContactFormJS() {
                 nameField.classList.remove('field-flash');
             }, 200);
 
-            // Show message
-            errorOutput.textContent = "Only letters, spaces, hyphens, and apostrophes are allowed.";
         }
     });
+
+    const charCountSpan = document.querySelector('#char-count');
+    const maxChars = messageField.maxLength;
+
+    function updateCharacterCount() {
+        const currentLength = messageField.value.length;
+        const remaining = maxChars - currentLength;
+
+        // Update the label's inline countdown
+        charCountSpan.textContent = `(${remaining} left)`;
+
+        // Warning when near limit
+        if (remaining <= 50) {
+            charCountSpan.style.color = "crimson";
+            charCountSpan.style.fontWeight = "600";
+        } else {
+            charCountSpan.style.color = "";
+            charCountSpan.style.fontWeight = "";
+        }
+
+        // Prevent exceeding the limit (copy/paste)
+        if (currentLength > maxChars) {
+            messageField.value = messageField.value.slice(0, maxChars);
+        }
+    }
+
+    // Update on input
+    messageField.addEventListener('input', updateCharacterCount);
+
+    // Show initial value on load
+    updateCharacterCount();
 
     // Helper to set a custom message based on validity state
     function setMessageForField(field) {
