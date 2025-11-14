@@ -209,5 +209,70 @@ function setupThemeToggle() {
 }
 
 function setupViewTransions() {
+    // No API? Don't try to transition stuff
+    if (!document.startViewTransition) return;
 
+    // Helper to update active nav link based on the URL path
+    function updateActiveNav(pathname) {
+        const page = pathname.split('/').pop() || 'index.html';
+
+        document.querySelectorAll('nav a').forEach((link) => {
+            const href = link.getAttribute('href');
+            if (!href) return;
+            const hrefPage = href.split('/').pop();
+
+            if (hrefPage === page) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
+
+    document.addEventListener('click', (event) => {
+        const link = event.target.closest('a[data-view-transition]');
+        if (!link) return;
+
+        const url = new URL(link.href);
+
+        // Only handle same-origin, same-site navigation
+        if (url.origin !== window.location.origin) return;
+
+        event.preventDefault();
+
+        document.startViewTransition(async () => {
+            const response = await fetch(url.href, {
+                headers: { 'X-Requested-With': 'view-transition' }
+            });
+
+            const html = await response.text();
+
+            const parser = new DOMParser();
+            const newDoc = parser.parseFromString(html, 'text/html');
+
+            const newMain = newDoc.querySelector('main');
+            const currentMain = document.querySelector('main');
+            const newTitle = newDoc.querySelector('title');
+
+            if (newMain && currentMain) {
+                currentMain.replaceWith(newMain);
+            }
+
+            if (newTitle) {
+                document.title = newTitle.textContent;
+            }
+
+            // Update URL and active nav styling
+            window.history.pushState(null, '', url.pathname);
+            updateActiveNav(url.pathname);
+
+            // Re-initialize JS behaviors for the new content
+            setupContactFormJS();
+        });
+    });
+
+    // Fallback for browser back/forward buttons: full reload is fine
+    window.addEventListener('popstate', () => {
+        window.location.reload();
+    });
 }

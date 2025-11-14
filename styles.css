@@ -213,6 +213,7 @@ fieldset {
 
 
 main {
+    view-transition-name: main;
     display: grid;
     gap: 2rem;
     padding: 2rem 4dvw;
