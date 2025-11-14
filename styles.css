@@ -171,6 +171,24 @@ fieldset {
             font: inherit;
         }
 
+        input[required],
+        textarea[required] {
+            border-left: 4px solid var(--color-accent);
+            padding: 0.6em;
+        }
+
+        input:user-invalid,
+        textarea:user-invalid {
+            border-color: crimson;
+            background: rgba(220, 20, 60, 0.06);
+        }
+
+        input:valid,
+        textarea:valid {
+            border-color: seagreen;
+            background: rgba(46, 139, 87, 0.06);
+        }
+
         button {
             background: var(--mint);
             color: white;
